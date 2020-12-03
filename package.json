@@ -1,0 +1,51 @@
+{
+  "name": "svelte-electron-template",
+  "version": "0.0.1",
+  "description": "Svelte Electron Application Template",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "autobuild": "rollup -c -w",
+    "dev": "rollup -c -w",
+    "start": "electron .",
+    "start:dev:win": "concurrently \"npm run autobuild\" \"set ELECTRON_RELOAD=yes && electron .\"",
+    "start:browser": "concurrently \"npm run autobuild\" \"browser-sync public -w --no-ghost-mode\"",
+    "storybook": "start-storybook -s ./public",
+    "package": "electron-packager . --out=dist --ignore=.storybook --ignore=src --ignore=rollup.config.js --ignore=.gitignore --overwrite"
+  },
+  "starting-template-author": "Maxim Vasilyev <max-at-work@yandex.ru>",
+  "author": "leshau90 <github.com/leshau90>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@mdi/font": "^5.8.55",
+    "@mdi/js": "^5.8.55",
+    "babel-loader": "^8.1.0",
+    "browser-sync": "^2.26.7",
+    "concurrently": "^4.1.2",
+    "csv-parser": "^2.3.4",
+    "electron": "^6.1.11",
+    "electron-packager": "^14.2.1",
+    "electron-reload": "^1.5.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.32.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-postcss": "^3.1.8",
+    "rollup-plugin-scss": "^2.6.1",
+    "rollup-plugin-svelte": "^5.2.1",
+    "rollup-plugin-terser": "^5.3.0",
+    "sass": "^1.29.0",
+    "svelte": "^3.22.2",
+    "svelte-loader": "^2.13.6",
+    "svelte-materialify": "^0.3.4",
+    "svelte-preprocess": "^4.6.1",
+    "sweetalert2": "^10.10.4",
+    "typeface-roboto": "^1.1.13"
+  },
+  "dependencies": {
+    "moment": "^2.29.1",
+    "tingodb": "^0.6.1"
+  }
+}

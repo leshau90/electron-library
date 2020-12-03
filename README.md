@@ -12,22 +12,16 @@ cd svelte-electron
 npm install
 ```
 
-### To run Storybook
-
-```
-npm run storybook
-```
-
 Opens browser with Storybook.
 
 ### To run Electron app with live reload
 
 ```
 npm run start:dev
+npm run start:dev for windows
 ```
 
 ### To package application
-
 ```
 npm run package
 ```

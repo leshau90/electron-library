@@ -9,7 +9,7 @@
     List,
     ListItem,
     Tooltip,
-    Icon
+    Icon,
   } from "svelte-materialify/src";
 
   function defaultQuery() {
@@ -35,8 +35,15 @@
           showCancelButton: true,
         }).then((kataKunci) => {
           if (kataKunci) {
-            let r = new RegExp(kataKunci.value, "i");
-            $query = { [result.value]: r };
+            //transforming it into query json
+            if (result.value === "kategori")
+              $query = {
+                [result.value]: { $in: [kataKunci.value.toLowerCase()] },
+              };
+            else {
+              let r = new RegExp(kataKunci.value, "i");
+              $query = { [result.value]: r };
+            }
             console.log("New query", $query);
             gotoPage();
           }

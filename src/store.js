@@ -278,8 +278,15 @@ export function getLendingData(statusPinjam) {
 }
 
 export function editLending(data, callback) {
-    lendings.update({ _id: data.statusPinjam }, { $set: { tanggalKembali: data.tanggalKembali, tanggalPinjam: data.tanggalPinjam } },(err,numOfUpdatedRecord)=>{
-        
+    lendings.update({ _id: data.statusPinjam }, { $set: { tanggalKembali: data.tanggalKembali, tanggalPinjam: data.tanggalPinjam } }, (err, numOfUpdatedRecord) => {
+        if (err) throw 'cannot update lendings data, check database codes'
+        else borrowers.update({ _id: data.borrower_id }, { $set: { namaPeminjam: data.namaPeminjam, alamatPeminjam: data.alamatPeminjam } }, (er, numOfUpdatedRecord) => {
+            if (er) throw 'cannot update borrwings data, check database codes'
+            else {
+                console.log('update lending data success')
+                gotoPage()
+            }
+        })
     })
 }
 export function returnBook(book_id) {

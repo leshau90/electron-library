@@ -2,10 +2,19 @@ import { writable, get } from 'svelte/store';
 import { columnHeaderFormater } from "./util/data-transform-map";
 import { collection, borrowers, lendings } from "./util/db-connector";
 import Swal from 'sweetalert2';
-import { compute_rest_props } from 'svelte/internal';
+import { compute_rest_props, insert } from 'svelte/internal';
 
 
 let defaultColumns = Object.keys(columnHeaderFormater)
+//if else routing
+export const view = Object.freeze({
+    HOME: 1,
+    BOOKLIST: 2,
+    LENDINGS: 3,
+    BORRWERS: 4,
+  });
+export let currentView = writable();
+
 
 export let query = writable({});
 export let pageNumbers = writable([]);
@@ -221,10 +230,46 @@ function promisify(fun) {
         })
     }
 }
+// const emptyPromise = () => new Promise((resolve, reject) => resolve('empty'))
+
+export function loadLendingData(id) {
+    console.log('finding in lendings where book id is', id)
+    return new Promise((resolve, reject) => {
+        let completeLendingData = []
+        lendings.find({ book_id: id }).toArray((err, peminjaman) => {
+            if (err) reject('error while loading lending data --loadLendingData')
+            else {
+                let arrayOfBorrowerId = peminjaman.map(x => x.borrower_id)
+                console.log('now loading the associated names from borrowers ids:', arrayOfBorrowerId)
+                peminjaman.map(pinjam => {
+                    borrowers.find({ _id: { $in: arrayOfBorrowerId } }).toArray((err, arrayOfBorrowers) => {
+                        if (err) reject('error while getting the borrwer data for this cluster of borrowerId' + arrayOfBorrowerId)
+                        else {
+                            console.log('transforming the returned data by crossreferencing id and borrowers, borrower array', arrayOfBorrowers)
+                            completeLendingData = peminjaman.map(pinjam => {
+
+                                let r = arrayOfBorrowers.find(b => b._id == pinjam.borrower_id)
+                                pinjam.namaPeminjam = r.namaPeminjam
+                                pinjam.alamatPeminjam = r.alamatPeminjam
+                                return pinjam
+                            })
+                            console.log(completeLendingData)
+                            resolve(completeLendingData)
+                        }
+                    })
+                })
+            }
+        })
+    })
+}
 
 export function lendBook(data, callback) {
-    let borrower_id = new Date().getTime()
+    console.log(data.borrower_id ? 'suggested borrower id is set, inserting lending immediately' : 'no borrower id new borrower and lending it is')
+
+    let borrower_id = data.borrower_id || new Date().getTime()
     let statusPinjam = new Date().getTime() //lending _id
+    let insertOnlyLending = data.borrower_id ? true : false
+
 
     let updateSelector = { _id: data._id }
     let updateQuery = {
@@ -243,20 +288,22 @@ export function lendBook(data, callback) {
     }
     let borrowerQuery = { _id: borrower_id, namaPeminjam: data.namaPeminjam, alamatPeminjam: data.alamatPeminjam }
     updateBook(updateSelector, updateQuery)
-        .then((_) => newBorrowerEntry(borrowerQuery))
+        .then((_) => {
+            if (insertOnlyLending) Promise.resolve(null);
+            else newBorrowerEntry(borrowerQuery)
+        })
         .then((_) => newLendingEntry(lendingQuery))
-        .then(_ => gotoPage())
+        .then(_ => {
+            gotoPage();
+            if (callback) callback()
+        })
         .catch((err) => {
             console.log(err)
             console.log(`deleting as necessary because of error `)
             collection.update(updateQuery, { $set: { statusPinjam: null } })
             lendings.remove({ _id: statusPinjam })
-            borrowers.remove({ _id: borrower_id })
+            if (!insertOnlyLending) borrowers.remove({ _id: borrower_id })
         })
-
-
-
-    if (callback) callback()
 }
 
 export function getLendingData(statusPinjam) {
@@ -292,4 +339,20 @@ export function editLending(data, callback) {
 export function returnBook(book_id) {
     updateBook({ _id: book_id }, { $set: { statusPinjam: null } })
         .then(_ => { console.log(_); gotoPage() })
+}
+
+export function searchBorrowerName(name) {
+    // console.log('store: searchBorrowerName',name)
+
+    let reg = new RegExp(name, 'i')
+    return new Promise((resolve, reject) => {
+        if (!name || name == undefined) resolve([])
+        borrowers.find({ namaPeminjam: reg }).toArray((err, resultArray) => {
+            if (err) reject(err)
+            else {
+                // console.log('store: searchBorrower by name, resulting array', resultArray)
+                resolve(resultArray)
+            }
+        })
+    })
 }

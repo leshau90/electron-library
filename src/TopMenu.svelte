@@ -5,10 +5,9 @@
     mdiArrowLeft,
     mdiArrowRight,
     mdiPlus,
-    
   } from "@mdi/js";
-  import {  Button, Icon } from "svelte-materialify/src";
-  import SorterMenu from './SorterMenu.svelte'
+  import { Button, Icon } from "svelte-materialify/src";
+  import SorterMenu from "./SorterMenu.svelte";
   import {
     gotoPage,
     pageNumbers,
@@ -19,10 +18,10 @@
   } from "./store";
 
   import { createEventDispatcher } from "svelte";
-  import Tooltip from "svelte-materialify/src/components/Tooltip";  
+  import Tooltip from "svelte-materialify/src/components/Tooltip";
   import Swal from "sweetalert2";
   import SearchButton from "./SearchButton.svelte";
-import ListStatus from "./ListStatus.svelte";
+  import ViewMenu from "./ViewMenu.svelte";
 
   const dispatch = createEventDispatcher();
   $lastPage = 1;
@@ -75,7 +74,6 @@ import ListStatus from "./ListStatus.svelte";
   }
 
   function setPerPageAndJump() {
-    
     let max = Math.ceil($total / $recordPerPage);
     if (max == 1) return;
     else {
@@ -92,16 +90,13 @@ import ListStatus from "./ListStatus.svelte";
         // console.log('jump to page',halaman.value)
         if (!perHalaman.value) return;
 
-        
-        let topIndexAtCurrentPage = ($lastPage-1) * ($recordPerPage)  
-        $recordPerPage  = parseInt(perHalaman.value);
-        $lastPage = Math.floor(topIndexAtCurrentPage / $recordPerPage) + 1       
+        let topIndexAtCurrentPage = ($lastPage - 1) * $recordPerPage;
+        $recordPerPage = parseInt(perHalaman.value);
+        $lastPage = Math.floor(topIndexAtCurrentPage / $recordPerPage) + 1;
         gotoPage($lastPage);
       });
     }
   }
-
-
 </script>
 
 <style>
@@ -116,18 +111,24 @@ import ListStatus from "./ListStatus.svelte";
 {#if showTopMenu}
   <div
     class="topcontainer d-flex flex-row-reverse justify-right white-text grey darken-2">
-
     <div class="ma-1 ml-3 mr-3 pa-1">
       <Button size="small" class="green lighten-2" on:click={callNewBookDialog}>
         <Icon path={mdiPlus} />
         Tambah
       </Button>
     </div>
-    <SorterMenu/>
+    <SorterMenu />
     <div class="ma-1 ml-3 mr-3 pa-1 ">
       <Tooltip bottom>
-        <span class="text-h6" on:click={setPerPageAndJump}> {$data.length} dari {$total} </span>
-        <span slot="tip">Jumlah Data <br/> klik untuk mengatur berapa data yang ditampilkan per-halaman </span>
+        <span class="text-h6" on:click={setPerPageAndJump}>
+          {$data.length}
+          dari
+          {$total}
+        </span>
+        <span slot="tip">Jumlah Data
+          <br />
+          klik untuk mengatur berapa data yang ditampilkan per-halaman
+        </span>
       </Tooltip>
     </div>
     <div class="mt-1 mb-1 mr-3  pa-1">
@@ -152,10 +153,7 @@ import ListStatus from "./ListStatus.svelte";
         <Button icon on:click={selectPage}>
           <span clas="text-comment">{$lastPage}</span>
         </Button>
-        <span slot="tip">Halaman
-          <br />
-          klik untuk lompat halaman
-        </span>
+        <span slot="tip">Halaman <br /> klik untuk lompat halaman </span>
       </Tooltip>
     </div>
     <div class="mt-1 mb-1 pa-1">
@@ -174,7 +172,7 @@ import ListStatus from "./ListStatus.svelte";
         <span slot="tip">Halaman Awal</span>
       </Tooltip>
     </div>
-    <SearchButton/>
-    <ListStatus/>
+    <SearchButton />
+    <ViewMenu />
   </div>
 {/if}

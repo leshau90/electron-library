@@ -18,6 +18,8 @@
   const dispatch = createEventDispatcher();
   import { lendBook, editLending } from "./store";
   import Swal from "sweetalert2";
+  import Menu from "svelte-materialify/src/components/Menu";
+  import AutoCompleteBorrowerName from "./AutoCompleteBorrowerName.svelte";
 
   export let formLendingData = {};
   export let editMode = false;
@@ -32,7 +34,11 @@
     }
   }
 
-  
+  function setBasedOnSuggestedBorrower(evt) {
+    console.log(evt.detail);
+    formLendingData.alamatPeminjam = evt.detail.alamatPeminjam;
+    formLendingData.borrower_id = evt.detail._id
+  }
 
   function closeDialog() {
     activateLendingDialog = false;
@@ -42,9 +48,7 @@
     dispatch("lendingdialogclosed");
   }
 
-  export function initiateEditData() {
-    
-  }
+  export function initiateEditData() {}
 </script>
 
 <Dialog fullscreen bind:active={activateLendingDialog}>
@@ -62,10 +66,10 @@
           <p class="text-caption text-black">id:&nbsp{formLendingData._id}</p>
         </Col>
         <Col cols="12">
-          <TextField outlined bind:value={formLendingData.namaPeminjam}>
-            Nama Peminjam
-          </TextField>
-          <span class="text-caption text-black">&nbsp Nama Peminjam Harus diisi</span>
+          <AutoCompleteBorrowerName
+            {editMode}
+            bind:textInput={formLendingData.namaPeminjam}
+            on:suggested={setBasedOnSuggestedBorrower} />
         </Col>
         <Col cols="12">
           <TextField outlined bind:value={formLendingData.alamatPeminjam}>
@@ -124,9 +128,7 @@
     </CardText>
     <CardActions class="justify-end">
       {#if editMode}
-        <Button on:click={editLending} text>
-          Edit Data Peminjaman
-        </Button>
+        <Button on:click={editLending} text>Edit Data Peminjaman</Button>
       {:else}
         <Button on:click={pinjamBuku} text>Pinjamkan Buku</Button>
       {/if}

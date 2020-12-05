@@ -1,6 +1,7 @@
 <script>
   const moment = require("moment");
   import Card from "svelte-materialify/src/components/Card";
+  import DataPeminjaman from "./DataPeminjaman.svelte";
   import {
     getLendingData,
     recordPerPage,
@@ -54,12 +55,13 @@
     };
     getLendingData(data.statusPinjam)
       .then(({ lendingData, borrowerData }) => {
+        data.borrower_id = borrowerData._id;
         data.tanggalKembali = lendingData.tanggalKembali;
         data.tanggalPinjam = lendingData.tanggalPinjam;
         data.alamatPeminjam = borrowerData.alamatPeminjam;
         data.namaPeminjam = borrowerData.namaPeminjam;
 
-        console.log('BOOKITEM event data', data)  
+        console.log("BOOKITEM event data", data);
         dispatch("editbooklending", { data });
       })
       .catch((err) => console.log(err));
@@ -204,6 +206,7 @@
                   </div>
                 </CardText>
               </Col>
+              <DataPeminjaman id={item._id} statusPinjam={item.statusPinjam}/>
             </Row>
           </div>
         {/if}

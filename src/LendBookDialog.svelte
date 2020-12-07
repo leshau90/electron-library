@@ -18,7 +18,7 @@
   const dispatch = createEventDispatcher();
   import { lendBook, editLending } from "./store";
   import Swal from "sweetalert2";
-  import Menu from "svelte-materialify/src/components/Menu";
+  // import Menu from "svelte-materialify/src/components/Menu";
   import AutoCompleteBorrowerName from "./AutoCompleteBorrowerName.svelte";
 
   export let formLendingData = {};
@@ -26,9 +26,16 @@
   export let formTitle;
   export let activateLendingDialog = false;
 
+  function editLendingData(){
+    if (!validateForm()) {
+      return;
+    } else {
+      editLending(formLendingData,closeDialog)
+    }
+  }
   function pinjamBuku() {
-    if (!formLendingData.namaPeminjam) {
-      Swal.fire("nama peminjam wajib diisi");
+    if (!validateForm()) {
+      return;
     } else {
       lendBook(formLendingData, closeDialog);
     }
@@ -37,7 +44,7 @@
   function setBasedOnSuggestedBorrower(evt) {
     console.log(evt.detail);
     formLendingData.alamatPeminjam = evt.detail.alamatPeminjam;
-    formLendingData.borrower_id = evt.detail._id
+    formLendingData.borrower_id = evt.detail._id;
   }
 
   function closeDialog() {
@@ -48,6 +55,28 @@
     dispatch("lendingdialogclosed");
   }
 
+  function validateForm() {
+    if (!formLendingData.namaPeminjam) {
+      Swal.fire("Periksa Input", "nama peminjam wajib diisi", "warning");
+      return false;
+    }
+
+    let pinjam = moment(formLendingData.tanggalPinjam)
+    let kembali = moment(formLendingData.tanggalKembali)
+    console.log("VALIDATING FORM pinjam dan kembali", pinjam, kembali);
+    if (!isNaN(moment) && !isNaN(kembali)) {
+      if (kembali.isBefore(pinjam)) {
+        Swal.fire(
+          "Periksa Input",
+          "pastikan tanggal kembali tidak mendahului tanggal pinjam",
+          "warning"
+        );
+        return false;
+      }
+    }
+    console.log("Data seems valid..committing",formLendingData);
+    return true;
+  }
   export function initiateEditData() {}
 </script>
 
@@ -82,7 +111,7 @@
         <Col cols="6">
           <Row>
             <Col cols="12">
-              {#if formLendingData.tanggalPinjam && editMode}
+              {#if (() => formLendingData.tanggalPinjam)() && editMode}
                 <p class="text-comment">
                   Tanggal Pinjam
                   <span class="text-caption">(dalam database)</span>
@@ -104,7 +133,7 @@
         <Col cols="6">
           <Row>
             <Col cols="12">
-              {#if formLendingData.tanggalKembali && editMode}
+              {#if (() => formLendingData.tanggalKembali)() && editMode}
                 <p class="text-comment">
                   Tanggal Kembali
                   <span class="text-caption">(dalam database)</span>
@@ -128,7 +157,7 @@
     </CardText>
     <CardActions class="justify-end">
       {#if editMode}
-        <Button on:click={editLending} text>Edit Data Peminjaman</Button>
+        <Button on:click={editLendingData} text>Edit Data Peminjaman</Button>
       {:else}
         <Button on:click={pinjamBuku} text>Pinjamkan Buku</Button>
       {/if}

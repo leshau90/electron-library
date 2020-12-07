@@ -1,6 +1,5 @@
 <script>
   const moment = require("moment");
-  import Card from "svelte-materialify/src/components/Card";
   import DataPeminjaman from "./DataPeminjaman.svelte";
   import {
     getLendingData,
@@ -10,14 +9,9 @@
     returnBook,
   } from "./store";
   import { slide } from "svelte/transition";
-  import Row from "svelte-materialify/src/components/Grid/Row.svelte";
-  import Col from "svelte-materialify/src/components/Grid/Col.svelte";
-  import { Icon } from "svelte-materialify/src";
   import { createEventDispatcher } from "svelte";
+  import Swal from 'sweetalert2'
   const dispatch = createEventDispatcher();
-  // import DatabaseController, {deleteBook} from './DatabaseController.svelte'
-
-  import Divider from "svelte-materialify/src/components/Divider";
   import {
     mdiDatabaseEdit,
     mdiHandshake,
@@ -25,13 +19,22 @@
     mdiInformationOutline,
     mdiTrashCanOutline,
   } from "@mdi/js";
-  import Button from "svelte-materialify/src/components/Button";
-  import CardText from "svelte-materialify/src/components/Card/CardText.svelte";
-  import Chip from "svelte-materialify/src/components/Chip";
-  import Tooltip from "svelte-materialify/src/components/Tooltip";
-  import Menu from "svelte-materialify/src/components/Menu";
-  import List from "svelte-materialify/src/components/List";
-  import ListItem from "svelte-materialify/src/components/List/ListItem.svelte";
+
+  import {
+    Menu,
+    List,
+    Tooltip,
+    Chip,
+    Button,
+    CardText,
+    Card,
+    Divider,
+    Row,
+    Col,
+    Icon,
+    ListItem,
+  } from "svelte-materialify/src";
+  import { query,gotoPage } from "./store";
 
   export let item = {};
   let detailed = false;
@@ -39,6 +42,29 @@
     detailed = !detailed;
   }
 
+  function listBookByKategori(selectedCategory) {
+    Swal.fire({
+      title: "Cari Berdasarkan Kategori",
+      text: `tampilkan semua buku dengan kategori, ${selectedCategory}? atau yang sebaliknya...`,
+      showCancelButton: true,
+      showDenyButton:true,
+      denyButtonText:'Tampilkan Sebaliknya',
+      confirmButtonText: `Ya`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        $query = { kategori: { $in: [selectedCategory] } };
+        gotoPage();        
+      } else if(result.isDenied){
+        $query = { kategori: { $nin: [selectedCategory] } };
+        gotoPage();        
+      }
+       else return;
+    });
+  }
+  function callReturnBook() {
+    returnBook(item._id, item.judul, item.statusPinjam);
+  }
   export let number = 0;
 
   function callEditBookDialog() {
@@ -140,9 +166,7 @@
                 <ListItem on:click={callEditLendingBookDialog}>
                   Edit Data Peminjaman
                 </ListItem>
-                <ListItem on:click={() => returnBook(item._id)}>
-                  Kembalikan Buku
-                </ListItem>
+                <ListItem on:click={callReturnBook}>Kembalikan Buku</ListItem>
               </List>
             </Menu>
           {:else}
@@ -201,12 +225,14 @@
                   {/if}
                   <div class="d-flex flex-wrap justify-center mb-1">
                     {#each item.kategori as k}
-                      <Chip class="ma-1 ">{k}</Chip>
+                      <Chip class="ma-1" on:click={() => listBookByKategori(k)}>
+                        {k}
+                      </Chip>
                     {/each}
                   </div>
                 </CardText>
               </Col>
-              <DataPeminjaman id={item._id} statusPinjam={item.statusPinjam}/>
+              <DataPeminjaman id={item._id} statusPinjam={item.statusPinjam} />
             </Row>
           </div>
         {/if}

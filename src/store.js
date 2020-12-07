@@ -7,13 +7,13 @@ import { compute_rest_props, insert } from 'svelte/internal';
 
 let defaultColumns = Object.keys(columnHeaderFormater)
 //if else routing
-export const view = Object.freeze({
+export const VIEW = Object.freeze({
     HOME: 1,
     BOOKLIST: 2,
     LENDINGS: 3,
     BORRWERS: 4,
-  });
-export let currentView = writable();
+});
+export let currentView = writable(VIEW.BOOKLIST);
 
 
 export let query = writable({});
@@ -40,28 +40,6 @@ function generatePagerNumbers(max, limit) {
     return result;
 }
 
-// export function populateList(queryx, message) {
-//     if (queryx) query.set(queryx);
-
-//     let cursor = collection.find(get(query)).sort(get(sorter));
-//     cursor.count((err, counted) => {
-//         if (err) throw 'cannot count --populateList';
-//         else {
-//             total.set(counted);          
-//         }
-//     });
-
-//     cursor
-//         .skip(0)
-//         .limit(get(recordPerPage))
-//         .toArray((_, dat) => {
-//             data.set(dat);
-//             console.log(message, dat);
-//         });
-// }
-
-//initial
-// populateList();
 
 
 export function gotoPage(pageNumber, sorterX) {
@@ -225,7 +203,7 @@ const newBorrowerEntry = function (borrowerData) {
 //when the utility node.promisify didn't work
 function promisify(fun) {
     return function (...args) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {            
             fun.apply(fun, [].concat(args, (err, res) => (err) ? reject(err) : resolve(res)))
         })
     }
@@ -240,12 +218,12 @@ export function loadLendingData(id) {
             if (err) reject('error while loading lending data --loadLendingData')
             else {
                 let arrayOfBorrowerId = peminjaman.map(x => x.borrower_id)
-                console.log('now loading the associated names from borrowers ids:', arrayOfBorrowerId)
+                // console.log('now loading the associated names from borrowers ids:', arrayOfBorrowerId)
                 peminjaman.map(pinjam => {
                     borrowers.find({ _id: { $in: arrayOfBorrowerId } }).toArray((err, arrayOfBorrowers) => {
                         if (err) reject('error while getting the borrwer data for this cluster of borrowerId' + arrayOfBorrowerId)
                         else {
-                            console.log('transforming the returned data by crossreferencing id and borrowers, borrower array', arrayOfBorrowers)
+                            // console.log('transforming the returned data by crossreferencing id and borrowers, borrower array', arrayOfBorrowers)
                             completeLendingData = peminjaman.map(pinjam => {
 
                                 let r = arrayOfBorrowers.find(b => b._id == pinjam.borrower_id)
@@ -254,6 +232,7 @@ export function loadLendingData(id) {
                                 return pinjam
                             })
                             console.log(completeLendingData)
+                            completeLendingData.sort()
                             resolve(completeLendingData)
                         }
                     })
@@ -264,7 +243,7 @@ export function loadLendingData(id) {
 }
 
 export function lendBook(data, callback) {
-    console.log(data.borrower_id ? 'suggested borrower id is set, inserting lending immediately' : 'no borrower id new borrower and lending it is')
+    // console.log(data.borrower_id ? 'suggested borrower id is set, inserting lending immediately' : 'no borrower id new borrower and lending it is')
 
     let borrower_id = data.borrower_id || new Date().getTime()
     let statusPinjam = new Date().getTime() //lending _id
@@ -331,14 +310,42 @@ export function editLending(data, callback) {
             if (er) throw 'cannot update borrwings data, check database codes'
             else {
                 console.log('update lending data success')
+                if (callback) callback()
                 gotoPage()
             }
         })
     })
 }
-export function returnBook(book_id) {
-    updateBook({ _id: book_id }, { $set: { statusPinjam: null } })
-        .then(_ => { console.log(_); gotoPage() })
+export function returnBook(book_id, judul, statusPinjam) {
+    Swal.fire({
+        title: 'Pengembalian Buku',
+        showDenyButton: true,
+        showCancelButton: true,
+        text: 'Set tanggal pengembalian ke hari ini?',
+        denyButtonColor: "#3085d6",
+        denyButtonText: `Kembalikan`,
+        confirmButtonColor: '#2845d4',
+        confirmButtonText: `Set Tanggal, lalu Kembalikan`,
+        width: '400px',
+        icon: 'question'
+    }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            lendings.update({ _id: statusPinjam }, { $set: { tanggalKembali: new Date() } }, (err, result) => {
+                if (err) throw 'cannot set tanggalKembali'
+            })
+        }
+        if (result.isConfirmed || result.isDenied) {
+            updateBook({ _id: book_id }, { $set: { statusPinjam: null } })
+                .then((result) => {
+                    console.log('--returnBook hasil pengembalian', result)
+                    Swal.fire('Buku Dikembalikan', ` buku ${judul} dikembalikan`, 'info');
+                    gotoPage()
+                }).catch(console.log)
+        }
+    })
+
+
 }
 
 export function searchBorrowerName(name) {
@@ -356,3 +363,33 @@ export function searchBorrowerName(name) {
         })
     })
 }
+
+
+
+
+
+
+
+
+// export function populateList(queryx, message) {
+//     if (queryx) query.set(queryx);
+
+//     let cursor = collection.find(get(query)).sort(get(sorter));
+//     cursor.count((err, counted) => {
+//         if (err) throw 'cannot count --populateList';
+//         else {
+//             total.set(counted);          
+//         }
+//     });
+
+//     cursor
+//         .skip(0)
+//         .limit(get(recordPerPage))
+//         .toArray((_, dat) => {
+//             data.set(dat);
+//             console.log(message, dat);
+//         });
+// }
+
+//initial
+// populateList();

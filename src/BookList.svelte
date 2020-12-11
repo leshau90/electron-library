@@ -5,11 +5,13 @@
   import TopMenu from "./TopMenu.svelte";
   import BookDataDialog from "./BookDataDialog.svelte";
   import LendBookDialog from "./LendBookDialog.svelte";
+  import AdvSearchSortDialog from "./AdvSearchSortDialog.svelte";
+
   // import TopMenu2 from "./TopMenu2.svelte";
 
   let showTopMenu = true;
 
-  //dialog related codes
+  //book edit and create dialog related codes
   let formData;
   let dialogFormTitle;
   let activateDialog;
@@ -33,35 +35,59 @@
   //lending dialog related
   let lendingBookForm;
   let activateLendingDialog = false;
-  let formLendingData = {}
+  let formLendingData = {};
 
   function newBookLending(evt) {
     activateLendingDialog = true;
     editMode = false;
     dialogFormTitle = "Pinjamkan Buku";
-    showTopMenu = false;    
+    hideTopMenu();
 
-    console.log('calling new book lending dialog with this data',{...evt.detail.data})
+    console.log("calling new book lending dialog with this data", {
+      ...evt.detail.data,
+    });
     formLendingData = { ...evt.detail.data };
     // lendingBookForm.fillIn()
   }
+
+  function hideTopMenu() {
+    showTopMenu = false;
+  }
+
   function editBookLending(evt) {
-    formLendingData={}
+    formLendingData = {};
     dialogFormTitle = "Pinjamkan Buku";
-    showTopMenu = false;    
+    hideTopMenu();
 
     formLendingData = { ...evt.detail.data };
-    console.log('bookList -- ',formLendingData)
+    console.log("bookList -- ", formLendingData);
     activateLendingDialog = true;
     editMode = true;
     // lendingBookForm.fillIn()
+  }
+
+  // advanced search dialog
+  let showAdvSearchDialog = false;
+  function callAdvSearch() {
+    showTopMenu = false;
+    showAdvSearchDialog = true;
+    hideTopMenu();
+  }
+
+  function advDialogClosed() {
+    showTopMenu = true;
+    showAdvSearchDialog = false;
+    gotoPage();
   }
 
   onMount(() => gotoPage(0));
 </script>
 
 <!-- <TopMenu2/> -->
-<TopMenu on:createbook={newBookForm} bind:showTopMenu />
+<TopMenu
+  on:createbook={newBookForm}
+  bind:showTopMenu
+  on:showAdvSearchDialog={callAdvSearch} />
 <div class="d-flex mt-15  flex-column ">
   {#each $data as item, i (item._id)}
     <BookItem
@@ -87,3 +113,7 @@
   bind:activateLendingDialog
   bind:editMode
   on:lendingdialogclosed={() => (showTopMenu = true)} />
+
+<AdvSearchSortDialog
+  {showAdvSearchDialog}
+  on:advDialogClosed={advDialogClosed} />

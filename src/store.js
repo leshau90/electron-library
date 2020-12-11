@@ -218,12 +218,17 @@ export function loadLendingData(id) {
             if (err) reject('error while loading lending data --loadLendingData')
             else {
                 let arrayOfBorrowerId = peminjaman.map(x => x.borrower_id)
-                // console.log('now loading the associated names from borrowers ids:', arrayOfBorrowerId)
+                if(arrayOfBorrowerId.length<1){
+                    console.log('no need to search because of no borrower yet')
+                    resolve(null)
+                    return
+                }
+                console.log('now loading the associated names from borrowers ids:', arrayOfBorrowerId)
                 peminjaman.map(pinjam => {
                     borrowers.find({ _id: { $in: arrayOfBorrowerId } }).toArray((err, arrayOfBorrowers) => {
                         if (err) reject('error while getting the borrwer data for this cluster of borrowerId' + arrayOfBorrowerId)
                         else {
-                            // console.log('transforming the returned data by crossreferencing id and borrowers, borrower array', arrayOfBorrowers)
+                            console.log('transforming the returned data by crossreferencing id and borrowers, borrower array', arrayOfBorrowers)
                             completeLendingData = peminjaman.map(pinjam => {
 
                                 let r = arrayOfBorrowers.find(b => b._id == pinjam.borrower_id)
@@ -232,7 +237,7 @@ export function loadLendingData(id) {
                                 return pinjam
                             })
                             console.log(completeLendingData)
-                            completeLendingData.sort()
+                            // completeLendingData.sort()
                             resolve(completeLendingData)
                         }
                     })

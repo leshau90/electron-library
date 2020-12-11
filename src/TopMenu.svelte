@@ -172,7 +172,7 @@
         <span slot="tip">Halaman Awal</span>
       </Tooltip>
     </div>
-    <SearchButton />
+    <SearchButton on:showAdvSearchDialog />
     <ViewMenu />
   </div>
 {/if}

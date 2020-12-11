@@ -17,13 +17,32 @@ export const columnHeaderFormater = {
   penerbit: "Penerbit",
   lokasiPenerbit: "Lokasi Penerbit",
   tahunTerbit: 'Tahun Terbit',
-  isbn: `ISBN`,
+  isbn: "ISBN",
   kategori: "Kategori",
   rak: "Rak",
   tanggalBeli: "Tanggal Beli",
   hargaBeli: "Harga Beli"
   // statusPinjam: "Status Pinjam",
   // tanggalPinjam: "Tanggal Pinjam"
+}
+
+const besarKecil = [{ name: 'Terbesar ke Terkecil', value: 'Terbesar ke Terkecil', queryVal: -1 }, { name: 'Terkecil ke Terbesar', value: 'Terkecil ke Terbesar', queryVal: 1 }]
+const zToa = [{ name: 'Z-A', value: 'Z-A', queryVal: -1 }, { name: 'A-Z', value: 'A-Z', queryVal: 1 }]
+const awalAkhir = [{ name: 'Terakhir ke Paling Awal', value: 'Terakhir ke Paling Awal', queryVal: -1 }, { name: 'Paling Awal ke Terakhir', value: 'Paling Awal ke Terakhir', queryVal: 1 }]
+
+export const sorterNameToValues = {
+  'id': { key: '_id', options: besarKecil },
+  'Judul': { key: 'judul', options: zToa },
+  'Pengarang': { key: 'pengarang', options: zToa },
+  "Edisi": { key: 'edisi', options: besarKecil },
+  "Cetakan": { key: 'cetakan', options: besarKecil },
+  "Penerbit": { key: 'penerbit', options: zToa },
+  "Lokasi Penerbit": { key: 'lokasiPenerbit', options: zToa },
+  'Tahun Terbit': { key: 'tahunTerbit', options: awalAkhir },
+  "ISBN": { key: 'isbn', options: zToa },
+  "Rak": { key: 'rak', options: zToa },
+  "Tanggal Beli": { key: 'tanggalBeli', options: awalAkhir },
+  "Harga Beli": { key: 'hargaBeli', options: besarKecil }
 }
 
 export const columnDataFormater = {

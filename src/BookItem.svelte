@@ -10,7 +10,7 @@
   } from "./store";
   import { slide } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
-  import Swal from 'sweetalert2'
+  import Swal from "sweetalert2";
   const dispatch = createEventDispatcher();
   import {
     mdiDatabaseEdit,
@@ -34,7 +34,7 @@
     Icon,
     ListItem,
   } from "svelte-materialify/src";
-  import { query,gotoPage } from "./store";
+  import { query, gotoPage } from "./store";
 
   export let item = {};
   let detailed = false;
@@ -47,19 +47,20 @@
       title: "Cari Berdasarkan Kategori",
       text: `tampilkan semua buku dengan kategori, ${selectedCategory}? atau yang sebaliknya...`,
       showCancelButton: true,
-      showDenyButton:true,
-      denyButtonText:'Tampilkan Sebaliknya',
+      showDenyButton: true,
+      denyButtonText: "Tampilkan Sebaliknya",
       confirmButtonText: `Ya`,
     }).then((result) => {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         $query = { kategori: { $in: [selectedCategory] } };
-        gotoPage();        
-      } else if(result.isDenied){
+        gotoPage();
+        Swal.fire('Pencarian',`menampilkan buku dengan kategori: ${selectedCategory}`,'info')
+      } else if (result.isDenied) {
         $query = { kategori: { $nin: [selectedCategory] } };
-        gotoPage();        
-      }
-       else return;
+        gotoPage();
+        Swal.fire('Pencarian',`menampilkan buku yang bukan kategori: ${selectedCategory}`,'info')
+      } else return;
     });
   }
   function callReturnBook() {
@@ -106,13 +107,19 @@
   // $:{console.log(node?node.getBoundingClientRect():`undefined`)}
 </script>
 
+<style>
+  .borrowed {
+    background-color: grey;
+  }
+</style>
+
 <div>
   <Divider />
   <Card flat class="ml-4">
     <Row>
       <Col class="" cols="12">
         {#if detailed}
-          <div transition:slide>
+          <div>
             <Row>
               <Col class="pa-2" cols="6">
                 <span class="text--secondary "> #{item._id} <br /> </span>
@@ -131,7 +138,11 @@
             <span
               class="text-comment">{1 + (number + ($lastPage - 1) * $recordPerPage)}:
             </span>
-            <span class="text-h6">{item.judul} </span>
+            <span
+              class="text-h6"
+              on:click={toggleDetail}
+              class:grey={item.statusPinjam != null}>{item.judul}
+            </span>
           </p>
           <Tooltip bottom>
             <Button icon size="medium" on:click={toggleDetail}>
@@ -179,7 +190,7 @@
           {/if}
         </div>
         {#if detailed}
-          <div transition:slide>
+          <div >
             <Row>
               <Col cols="6">
                 <CardText>

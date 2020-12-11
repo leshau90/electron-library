@@ -2,6 +2,8 @@
   import { mdiMagnify } from "@mdi/js";
   import Swal from "sweetalert2";
   import { query, sorter, gotoPage } from "./store";
+  import { createEventDispatcher, onMount } from "svelte";
+  const dispatch = createEventDispatcher();
   import { columnHeaderFormater as fields } from "./util/data-transform-map";
   import {
     Menu,
@@ -15,6 +17,10 @@
   function defaultQuery() {
     $query = {};
     gotoPage();
+  }
+
+  function callAdvSeachDialog() {
+    dispatch('showAdvSearchDialog')
   }
 
   function newSearch() {
@@ -51,6 +57,8 @@
       }
     });
   }
+
+  
 </script>
 
 <style>
@@ -76,6 +84,7 @@
     <List>
       <ListItem on:click={defaultQuery}>Hapus Pencarian</ListItem>
       <ListItem on:click={newSearch}>Cari Berdasarkan...</ListItem>
+      <ListItem on:click={callAdvSeachDialog}>Pencarian Lebih Detail</ListItem>
     </List>
   </Menu>
 </div>

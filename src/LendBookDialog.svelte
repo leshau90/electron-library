@@ -77,7 +77,7 @@
     console.log("Data seems valid..committing",formLendingData);
     return true;
   }
-  export function initiateEditData() {}
+  
 </script>
 
 <Dialog fullscreen bind:active={activateLendingDialog}>

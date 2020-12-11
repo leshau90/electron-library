@@ -13,3 +13,4 @@ database-edit.js
 public/bundle.*
 dist/
 !dist/.placeholder
+qr-code-demo.js

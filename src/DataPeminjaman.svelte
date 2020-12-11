@@ -2,7 +2,7 @@
   import { Button, Col } from "svelte-materialify/src";
   import Subheader from "svelte-materialify/src/components/Subheader";
   import ItemPeminjaman from "./ItemPeminjaman.svelte";
-
+  import Swal from 'sweetalert2'
   import { loadLendingData } from "./store.js";
 
   let dataPeminjaman = null;
@@ -12,6 +12,10 @@
   async function displayLendingData() {
     // console.log('trying to display lending data --displayLendingData on id',id)
     dataPeminjaman = await loadLendingData(id);
+    
+    if(!dataPeminjaman || dataPeminjaman.length<1){
+      Swal.fire('data tidak ada','buku belum pernah dipinjamkan','info')
+    }
   }
 </script>
 

@@ -25,7 +25,7 @@
 
   export let showAdvSearchDialog = false;
   let advSearch = {};
-  let tempSorter = {...$sorter};
+  let tempSorter = { ...$sorter };
   function closeDialog() {
     showAdvSearchDialog = false;
     advSearch = {};
@@ -34,13 +34,28 @@
 
   function doAdvSearch() {
     $query = {};
+    
     Object.keys(advSearch).forEach((key) => {
       if (advSearch[key]) {
-        $query[key] = advSearch[key];
+        //turning to regex for text based search
+        switch (key) {
+          case "judul":
+          case "pengarang":
+          case "penerbit":
+          case "lokasiPenerbit":
+          case "rak":            
+          case "isbn":
+            let r = new RegExp(advSearch[key], "i")
+            $query[key] = r;  
+            break;
+          default:
+            $query[key] = advSearch[key];
+        }
       }
     });
 
-    $sorter = tempSorter
+    $sorter = tempSorter;
+    // console.log('after adv search the sorter and query is', $sorter,$query)
     gotoPage();
     closeDialog();
   }
@@ -169,7 +184,9 @@
           <span class="text-h4 mb-2"><Divider /></span>
         </Col>
         <Col cols="12"><span class="text-h4">Kriteria Pengurutan</span></Col>
-        <Col cols="12"><span class="text-caption">{JSON.stringify(tempSorter)}</span></Col>
+        <Col cols="12">
+          <span class="text-caption">{JSON.stringify(tempSorter)}</span>
+        </Col>
         <SortingCriteriaList bind:sortingItems={tempSorter} />
       </Row>
     </CardText>

@@ -59,7 +59,7 @@ export function gotoPage(pageNumber, sorterX) {
 
     let sorterY = get(sorter)
     if (sorterX) sorterY = sorterX
-    console.log('gotoPage with this Sorter ', JSON.stringify(sorterY))
+    console.log('gotoPage with this Sorter and query ', sorterY, get(query))
     collection.find(get(query)).sort(sorterY)
         .skip(toSkip).limit(get(recordPerPage))
         .toArray((err, dat) => {
@@ -203,7 +203,7 @@ const newBorrowerEntry = function (borrowerData) {
 //when the utility node.promisify didn't work
 function promisify(fun) {
     return function (...args) {
-        return new Promise((resolve, reject) => {            
+        return new Promise((resolve, reject) => {
             fun.apply(fun, [].concat(args, (err, res) => (err) ? reject(err) : resolve(res)))
         })
     }
@@ -218,7 +218,7 @@ export function loadLendingData(id) {
             if (err) reject('error while loading lending data --loadLendingData')
             else {
                 let arrayOfBorrowerId = peminjaman.map(x => x.borrower_id)
-                if(arrayOfBorrowerId.length<1){
+                if (arrayOfBorrowerId.length < 1) {
                     console.log('no need to search because of no borrower yet')
                     resolve(null)
                     return
